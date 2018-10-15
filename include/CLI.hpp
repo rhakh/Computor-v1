@@ -31,7 +31,6 @@ public:
 	};
 
 	// Custom exceptions
-	
 };
 
 #endif // COMMAND_LINE_INTERFACE_HPP
