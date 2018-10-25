@@ -3,6 +3,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "CLI.hpp"
+#include "Parser.hpp"
 
 bool	CLI::isFlagSet(const std::string &flag) const {
 	if (this->vm.count(flag))
@@ -56,24 +57,28 @@ bool	CLI::processArguments(int argc, const char **argv) {
 	return (true);
 }
 
-CLI::CLI(int argc, const char **argv) : desc("Options") {
+CLI::CLI(int _argc, const char **_argv) :
+desc("Options"), argc(_argc), argv(_argv)
+{
 	namespace po = boost::program_options;
 	std::string	helpStr = std::string("Print help\n"
 							"\tThe program to solve polinomial expresion\n"
 							"\twith degree equal or less than 2\n"
 							"\tExample of usage:\n") +
-							std::string("\t") + std::string(argv[0]) +
+							std::string("\t") + std::string(_argv[0]) +
 							std::string(" '5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0'\n");
 
 	this->desc.add_options()
 			("help,h", helpStr.c_str());
 
-	if (!processArguments(argc, argv))
+	if (!processArguments(_argc, _argv))
 		throw CLI_invalidArguments();
 }
 
 CLI::~CLI() {}
 
 void	CLI::startLogic() const {
-	
+	Parser	p;
+
+	p.parse(this->argv[1]);
 }

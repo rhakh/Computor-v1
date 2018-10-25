@@ -9,6 +9,8 @@ namespace po = boost::program_options;
 class CLI {
 	po::options_description	desc;
 	po::variables_map		vm;
+	const int				argc;
+	const char				**argv;
 
 	bool	processArguments(int argc, const char **argv);
 public:

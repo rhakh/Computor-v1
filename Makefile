@@ -25,6 +25,7 @@ SRCDIR = src/
 
 _SRC =	main.cpp \
 		CLI.cpp \
+		Parser.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 
