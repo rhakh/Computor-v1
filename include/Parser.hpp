@@ -11,6 +11,7 @@ class Parser {
 
 public:
     bool parse(const std::string &str);
+    bool validate(const std::string &str);
 };
 
 #endif // PARSER_HPP

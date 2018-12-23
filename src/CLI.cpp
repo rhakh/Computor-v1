@@ -61,6 +61,8 @@ CLI::CLI(int _argc, const char **_argv) :
 desc("Options"), argc(_argc), argv(_argv)
 {
 	namespace po = boost::program_options;
+
+	(void)(this->argc);
 	std::string	helpStr = std::string("Print help\n"
 							"\tThe program to solve polinomial expresion\n"
 							"\twith degree equal or less than 2\n"
