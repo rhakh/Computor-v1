@@ -8,83 +8,97 @@
 #include <string>
 #include <vector>
 
-namespace client
-{
-    namespace qi = boost::spirit::qi;
-    namespace ascii = boost::spirit::ascii;
-    namespace phoenix = boost::phoenix;
+#ifndef __CALCULATOR_GRAMMAR_INTERPRETER_HPP__
+#define __CALCULATOR_GRAMMAR_INTERPRETER_HPP__
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //  Our number list compiler
-    ///////////////////////////////////////////////////////////////////////////////
-    //[tutorial_numlist3
-    template <typename Iterator>
-    bool parse_numbers(Iterator first, Iterator last, std::vector<double>& v)
+#include <boost/spirit/include/qi.hpp>
+
+namespace qi     = boost::spirit::qi;
+namespace spirit = boost::spirit;
+
+template <typename Iterator>
+struct calculator_interpreter
+    : qi::grammar<Iterator, int(), qi::space_type>
     {
-        using qi::double_;
-        using qi::phrase_parse;
-        using qi::_1;
-        using ascii::space;
-        using phoenix::push_back;
+    calculator_interpreter()
+        : calculator_interpreter::base_type(expr)
+        {
+        expr =
+            term                    [ qi::_val =    qi::_1 ]
+            >> *(   '+' >> term     [ qi::_val +=   qi::_1 ]
+                |   '-' >> term     [ qi::_val -=   qi::_1 ]
+                )
+            ;
 
-        bool r = phrase_parse(first, last,
+        term =
+            factor                  [ qi::_val =    qi::_1 ]
+            >> *(   '*' >> factor   [ qi::_val *=   qi::_1 ]
+                |   '/' >> factor   [ qi::_val /=   qi::_1 ]
+                )
+            ;
 
-            //  Begin grammar
-            (
-                double_[push_back(phoenix::ref(v), _1)] % ','
-            )
-            ,
-            //  End grammar
+        factor =
+                qi::uint_           [ qi::_val =    qi::_1 ]
+            |   '(' >> expr         [ qi::_val =    qi::_1 ] >> ')'
+            |   '-' >> factor       [ qi::_val =   -qi::_1 ]
+            |   '+' >> factor       [ qi::_val =    qi::_1 ]
+            ;
 
-            space);
+        }
 
-        if (first != last) // fail if we did not get a full match
-            return false;
-        return r;
-    }
-    //]
-}
+    qi::rule<Iterator, int(), qi::space_type>
+           expr, term, factor;
+    };
+
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////
 //  Main program
 ////////////////////////////////////////////////////////////////////////////
-int
-main()
-{
-    std::cout << "/////////////////////////////////////////////////////////\n\n";
-    std::cout << "\t\tA comma separated list parser for Spirit...\n\n";
-    std::cout << "/////////////////////////////////////////////////////////\n\n";
 
-    std::cout << "Give me a comma separated list of numbers.\n";
-    std::cout << "The numbers will be inserted in a vector of numbers\n";
-    std::cout << "Type [q or Q] to quit\n\n";
 
-    std::string str;
-    while (getline(std::cin, str))
+#include <iostream>
+#include <string>
+
+#include <boost/spirit/include/qi.hpp>
+
+int main()
     {
-        if (str.empty() || str[0] == 'q' || str[0] == 'Q')
-            break;
+    std::cout << "//////////////////////////////////////////////\n\n";
+    std::cout << "Expression parser...\n";
+    std::cout << "//////////////////////////////////////////////\n\n";
+    std::cout << "Type an expression... or [q or Q] to quit\n\n";
 
-        std::vector<double> v;
-        if (client::parse_numbers(str.begin(), str.end(), v))
+    std::string expression;
+
+    calculator_interpreter<std::string::iterator> calc;
+
+    while(true)
         {
-            std::cout << "-------------------------\n";
+        std::getline(std::cin, expression);
+        if(expression == "q" || expression == "Q") break;
+        std::string::iterator  begin = expression.begin()
+                             , end   = expression.end();
+
+        int result;
+        bool success = qi::phrase_parse( begin
+                                       , end
+                                       , calc
+                                       , qi::space
+                                       , result);
+
+        std::cout << "-----------------------\n";
+        if(success && begin == end)
+            {
             std::cout << "Parsing succeeded\n";
-            std::cout << str << " Parses OK: " << std::endl;
-
-            for (std::vector<double>::size_type i = 0; i < v.size(); ++i)
-                std::cout << i << ": " << v[i] << std::endl;
-
-            std::cout << "\n-------------------------\n";
-        }
+            std::cout << "result = " << result << "\n";
+            }
         else
-        {
-            std::cout << "-------------------------\n";
-            std::cout << "Parsing failed\n";
-            std::cout << "-------------------------\n";
+            {
+            std::cout << "Parsing failed\nstopped at: \""
+                      << std::string(begin,end) << "\"\n";
+            }
+        std::cout << "-----------------------\n";
         }
     }
-
-    std::cout << "Bye... :-) \n\n";
-    return 0;
-}
