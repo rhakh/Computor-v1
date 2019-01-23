@@ -78,7 +78,15 @@ desc("Options"), argc(_argc), argv(_argv)
 CLI::~CLI() {}
 
 void	CLI::startLogic() const {
-	Parser	p;
+	bool success;
+	std::string expression(this->argv[1]);
+	std::string::iterator begin = expression.begin(), end = expression.end();
+	D2parser<std::string::iterator> p;
 
-	p.parse(this->argv[1]);
+	success = qi::phrase_parse(begin, end, p, qi::space);
+	if(success && begin == end)
+		std::cout << "Parsing succeeded\n";
+	else
+		std::cout << "Parsing failed\nstopped at: \""
+					<< std::string(begin,end) << "\"\n";
 }

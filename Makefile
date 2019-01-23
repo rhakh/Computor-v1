@@ -15,7 +15,7 @@ else
   INCLUDE_AND_LIBS = -I include
   FLAGS = -std=c++11 -Wall -Wextra -Werror \
 			-lboost_filesystem  -lboost_system -lboost_program_options \
-			-pthread -lboost_thread -Wno-unused-command-line-argument \
+			-pthread -lboost_thread \
 			-Wno-unused-parameter -O2
 endif
 
@@ -25,7 +25,6 @@ SRCDIR = src/
 
 _SRC =	main.cpp \
 		CLI.cpp \
-		Parser.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 
