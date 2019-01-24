@@ -102,3 +102,77 @@ int main()
         std::cout << "-----------------------\n";
         }
     }
+
+
+
+
+// #include <boost/config/warning_disable.hpp>
+// #include <boost/spirit/include/qi.hpp>
+// #include <boost/spirit/include/phoenix_core.hpp>
+// #include <boost/spirit/include/phoenix_operator.hpp>
+// #include <boost/spirit/include/phoenix_stl.hpp>
+// #include <boost/spirit/include/phoenix_bind.hpp>
+// // #include <boost/bind.hpp>
+
+// #include <iostream>
+// #include <string>
+// #include <vector>
+// #include <utility>
+
+// namespace qi     = boost::spirit::qi;
+// namespace spirit = boost::spirit;
+
+// void    oneArg(int const &a)
+// {
+//     std::cout << "A = " << a << std::endl;
+// }
+
+// void    twoArgs(int const &a, int const &b)
+// {
+//     std::cout << "A = " << a << ", B = " << b << std::endl;
+// }
+
+// struct AAA {
+//     void vectFunc(int const &a, int const &b) {
+//         std::cout << "A = " << a << ", B = " << b << std::endl;
+//     }
+// };
+
+// struct SimpleParser : qi::grammar<std::string::iterator, std::pair<int, int>(), qi::space_type>
+// {
+//     qi::rule<std::string::iterator, std::pair<int, int>(), qi::space_type> expr;
+
+//     void    static twoArgs(int const &a, int const &b)
+//     {
+//         std::cout << "A = " << a << ", B = " << b << std::endl;
+//     }
+
+//     SimpleParser() : SimpleParser::base_type(expr)
+//     {
+//         // Worked
+//         // expr = (qi::int_ >> ',' >> qi::omit[qi::int_])[boost::bind(&oneArg, _1)];
+
+//         // Worked
+//         // expr = (qi::int_ >> ',' >> qi::int_)[std::cout << qi::_1 << " ; " << qi::_2 << std::endl];
+
+//         // Not worked
+//         AAA b;
+//         expr = (qi::int_ >> ',' >> qi::int_)[boost::phoenix::bind(&AAA::vectFunc, &b, qi::_1, qi::_2)];
+//     }
+// };
+
+// int main()
+// {
+//     SimpleParser calc;
+//     std::string str = "14, 15";
+//     std::string::iterator begin = str.begin() , end = str.end();
+
+//     bool success = qi::phrase_parse( begin, end, calc, qi::space);
+
+//     if(success && begin == end)
+//         std::cout << "Parsing succeeded\n";
+//     else
+//         std::cout << "Parsing failed\nstopped at: \""
+//                     << std::string(begin,end) << "\"\n";
+//     return (0);
+}

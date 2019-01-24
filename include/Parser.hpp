@@ -3,35 +3,25 @@
 
 #include <string>
 #include <iostream>
-//#include <boost/spirit.hpp>
+#include <vector>
+// #include <boost/spirit.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/phoenix.hpp>
-#include <boost/bind.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
+#include <boost/config/warning_disable.hpp>
+#include <boost/lambda/lambda.hpp>
+
 
 namespace qi     = boost::spirit::qi;
 namespace spirit = boost::spirit;
+namespace phx    = boost::phoenix;
 
 //  "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
 
-// struct someFunc
-// {
-// void operator() ( int const & val
-//                 , unsigned int const & val2
-//                 , qi::unused_type ) const
-//     {
-//         std::cout << "coef = " << val << ", power = " << val2 << std::endl;
-//     }
-// };
-
-void someFunc(unsigned int const &val, unsigned int const &val2) {
+void twoArgs(unsigned int const &val, unsigned int const &val2) {
     std::cout << "coef = " << val << ", power = " << val2 << std::endl;
 }
-
-// void someFunc(unsigned int const &val) {
-//     std::cout << "coef = " << val << std::endl;
-// }
 
 template <typename Iterator>
 struct D2parser : qi::grammar<Iterator, int(), qi::space_type>
@@ -75,18 +65,7 @@ struct D2parser : qi::grammar<Iterator, int(), qi::space_type>
             ;
 
         factor =
-                // qi::uint_[qi::_val = qi::_1] >> '*' >> 'X' >> '^' >> qi::uint_[boost::bind(&someFunc, qi::_val, qi::_1)]
-
-                // (qi::uint_[qi::_val = qi::_1] >> '*' >> 'X' >> '^' >> qi::uint_[boost::bind(&someFunc, qi::_1)])
-
-                // (qi::uint_ >> '*' >> 'X' >> '^' >> qi::uint_[&someFunc])
-
-                (qi::uint_ >> '*' >> 'X' >> '^' >> qi::uint_)[std::cout << "coef = " << qi::_1 << " val = " << qi::_2 << std::endl]
-
-                // (qi::uint_ >> '*' >> 'X' >> '^' >> qi::uint_)[phoenix::bind(&someFunc, qi::_1)]
-
-                // qi::uint_           [ qi::_val =    qi::_1 ]
-
+                (qi::uint_ >> '*' >> 'X' >> '^' >> qi::uint_)[phx::bind(&twoArgs, qi::_1, qi::_2)]
             |   '(' >> expr         [ qi::_val =    qi::_1 ] >> ')'
             |   '-' >> factor       [ qi::_val =   -qi::_1 ]
             |   '+' >> factor       [ qi::_val =    qi::_1 ]
