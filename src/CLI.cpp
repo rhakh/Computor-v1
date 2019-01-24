@@ -81,7 +81,7 @@ void	CLI::startLogic() const {
 	bool success;
 	std::string expression(this->argv[1]);
 	std::string::iterator begin = expression.begin(), end = expression.end();
-	D2parser<std::string::iterator> p;
+	D2parser p;
 
 	success = qi::phrase_parse(begin, end, p, qi::space);
 	if(success && begin == end)
