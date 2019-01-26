@@ -89,4 +89,5 @@ void	CLI::startLogic() const {
 	else
 		std::cout << "Parsing failed\nstopped at: \""
 					<< std::string(begin,end) << "\"\n";
+	std::cout << "argc = " << this->argc << std::endl;
 }

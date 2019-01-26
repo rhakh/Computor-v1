@@ -38,3 +38,8 @@ int		main(int argc, const char **argv) {
 	}
 	return (0);
 }
+
+
+
+// Пример того как выызвать конструктор в парсере
+// http://boost-spirit.com/home/2011/02/26/using-_val-in-top-level-semantic-actions/
