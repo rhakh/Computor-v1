@@ -18,9 +18,14 @@ namespace qi     = boost::spirit::qi;
 namespace spirit = boost::spirit;
 namespace phx    = boost::phoenix;
 
-//  "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
+// "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
+// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0"
+// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 "
+// "8 * X^0 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
+// "8 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
+// "8 - 6 * X + X^2 - 5.6 * X^2 = 3 "
 
-void twoArgs(const int &equal, const boost::optional<char> &sign, const boost::optional<unsigned int> &coef, const boost::optional<unsigned int> &power)
+void twoArgs(const int &equal, const boost::optional<char> &sign, const boost::optional<double> &coef, const boost::optional<unsigned int> &power)
 {
     std::cout << "TERM: ";
     if (sign == boost::none)
@@ -41,7 +46,7 @@ void twoArgs(const int &equal, const boost::optional<char> &sign, const boost::o
     std::cout << std::endl;
 }
 
-void constantFunc(const int &equal, const boost::optional<char> &sign, const unsigned int &val)
+void constantFunc(const int &equal, const boost::optional<char> &sign, const double &val)
 {
     std::cout << "CONSTANT: ";
     if (sign == boost::none)
@@ -64,13 +69,15 @@ struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::sp
         stmts = (term(qi::_r1) | constant(qi::_r1));
 
         term = (-(qi::char_('+') | qi::char_('-'))
-                >> -qi::uint_
+                >> -qi::double_
                 >> -qi::char_('*')
                 >> qi::char_('X')
                 >> -qi::char_('^')
-                >> -qi::uint_)[ qi::_pass = !(qi::_6 > 2U)  , phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_6)];
+                >> -qi::uint_)
+        [qi::_pass = !(qi::_6 > 2U), phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_6)];
 
-        constant = (-(qi::char_('+') | qi::char_('-')) >> qi::uint_)[phx::bind(&constantFunc, qi::_r1, qi::_1, qi::_2)];
+        constant = (-(qi::char_('+') | qi::char_('-')) >> qi::double_)
+                    [phx::bind(&constantFunc, qi::_r1, qi::_1, qi::_2)];
     }
 };
 
