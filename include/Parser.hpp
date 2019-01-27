@@ -68,7 +68,7 @@ struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::sp
                 >> -qi::char_('*')
                 >> qi::char_('X')
                 >> -qi::char_('^')
-                >> -qi::uint_)[phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_6)];
+                >> -qi::uint_)[ qi::_pass = !(qi::_6 > 2U)  , phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_6)];
 
         constant = (-(qi::char_('+') | qi::char_('-')) >> qi::uint_)[phx::bind(&constantFunc, qi::_r1, qi::_1, qi::_2)];
     }
