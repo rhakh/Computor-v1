@@ -20,7 +20,8 @@ namespace phx    = boost::phoenix;
 
 //  "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
 
-void twoArgs(const boost::optional<char> &sign, const boost::optional<unsigned int> &coef, const boost::optional<unsigned int> &power) {
+void twoArgs(const int &equal, const boost::optional<char> &sign, const boost::optional<unsigned int> &coef, const boost::optional<unsigned int> &power)
+{
     std::cout << "TERM: ";
     if (sign == boost::none)
         std::cout << "sign NONE";
@@ -36,38 +37,40 @@ void twoArgs(const boost::optional<char> &sign, const boost::optional<unsigned i
         std::cout << ", power = NONE";
     else
         std::cout << ", power = " << power;
+    std::cout << ", Equal = " << equal;
     std::cout << std::endl;
 }
 
-void constantFunc(const boost::optional<char> &sign, const unsigned int &val) {
+void constantFunc(const int &equal, const boost::optional<char> &sign, const unsigned int &val)
+{
     std::cout << "CONSTANT: ";
     if (sign == boost::none)
         std::cout << "sign NONE";
     else
         std::cout << "sign " << sign;
-    std::cout << ", val = " << val << std::endl;
+    std::cout << ", val = " << val;
+    std::cout << ", Equal = " << equal << std::endl;
 }
 
-struct D2parser : qi::grammar<std::string::iterator, qi::space_type>
+struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::space_type>
 {
-    qi::rule<std::string::iterator, qi::space_type>   equitation, stmts, term, constant;
+    qi::rule<std::string::iterator, spirit::locals<int>, qi::space_type>    equitation;
+    qi::rule<std::string::iterator, int(int), qi::space_type>    stmts, term, constant;
 
     D2parser() : D2parser::base_type(equitation)
     {
-        // bool equal = false;
+        equitation = qi::eps[qi::_a = 0] >> +(stmts(qi::_a)) >> qi::char_('=')[qi::_a = 1] >> +(stmts(qi::_a));
 
-        equitation = +(stmts) >> qi::char_('=') >> +(stmts);
-
-        stmts = (term | constant);
+        stmts = (term(qi::_r1) | constant(qi::_r1));
 
         term = (-(qi::char_('+') | qi::char_('-'))
                 >> -qi::uint_
                 >> -qi::char_('*')
                 >> qi::char_('X')
                 >> -qi::char_('^')
-                >> -qi::uint_)[phx::bind(&twoArgs, qi::_1, qi::_2, qi::_6)];
+                >> -qi::uint_)[phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_6)];
 
-        constant = (-(qi::char_('+') | qi::char_('-')) >> qi::uint_)[phx::bind(&constantFunc, qi::_1, qi::_2)];
+        constant = (-(qi::char_('+') | qi::char_('-')) >> qi::uint_)[phx::bind(&constantFunc, qi::_r1, qi::_1, qi::_2)];
     }
 };
 
