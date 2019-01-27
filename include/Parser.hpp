@@ -20,77 +20,54 @@ namespace phx    = boost::phoenix;
 
 //  "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
 
-void twoArgs(const int &val, const int &val2) {
-    std::cout << "coef = " << val << ", power = " << val2 << std::endl;
+void twoArgs(const boost::optional<char> &sign, const boost::optional<unsigned int> &coef, const boost::optional<unsigned int> &power) {
+    std::cout << "TERM: ";
+    if (sign == boost::none)
+        std::cout << "sign NONE";
+    else
+        std::cout << "sign " << sign;
+    
+    if (coef == boost::none)
+        std::cout << ", coef = NONE";
+    else
+        std::cout << ", coef = " << coef;
+
+    if (power == boost::none)
+        std::cout << ", power = NONE";
+    else
+        std::cout << ", power = " << power;
+    std::cout << std::endl;
 }
 
-void signFunc(boost::optional<char> val) {
-    std::cout << "char = " << val << std::endl;
+void constantFunc(const boost::optional<char> &sign, const unsigned int &val) {
+    std::cout << "CONSTANT: ";
+    if (sign == boost::none)
+        std::cout << "sign NONE";
+    else
+        std::cout << "sign " << sign;
+    std::cout << ", val = " << val << std::endl;
 }
 
-// template <typename Iterator>
-// struct D2parser : qi::grammar<Iterator, int(), qi::space_type>
-// {
-//     qi::rule<Iterator, int(), qi::space_type>   expr, term, factor;
-
-//     D2parser() : D2parser::base_type(expr)
-//     {
-//         expr = 
-//             term                    [ qi::_val =    qi::_1 ]
-//             >> *(   '+' >> term     [ qi::_val +=   qi::_1 ]
-//                 |   '-' >> term     [ qi::_val -=   qi::_1 ]
-//                 )
-//             ;
-
-//         term =
-//             factor                  [ qi::_val =    qi::_1 ]
-//             >> *(   '*' >> factor   [ qi::_val *=   qi::_1 ]
-//                 |   '/' >> factor   [ qi::_val /=   qi::_1 ]
-//                 )
-//             ;
-
-//         factor =
-//                 qi::uint_           [ qi::_val =    qi::_1 ]
-//             |   '(' >> expr         [ qi::_val =    qi::_1 ] >> ')'
-//             |   '-' >> factor       [ qi::_val =   -qi::_1 ]
-//             |   '+' >> factor       [ qi::_val =    qi::_1 ]
-//             ;
-//     }
-// };
-
-struct D2parser : qi::grammar<std::string::iterator, int(), qi::space_type>
+struct D2parser : qi::grammar<std::string::iterator, qi::space_type>
 {
-    // qi::rule<std::string::iterator, int(), qi::space_type>   expr, factor, num;
-    qi::rule<std::string::iterator, int(), qi::space_type>   program, stmts, term, constant, sign;
+    qi::rule<std::string::iterator, qi::space_type>   equitation, stmts, term, constant;
 
-    D2parser() : D2parser::base_type(program)
+    D2parser() : D2parser::base_type(equitation)
     {
-        // expr = qi::eps[qi::_val = 1] >>
-        //         factor >> *( factor );
+        // bool equal = false;
 
-        // factor =
-        //         num
-        //     | qi::char_('-')[qi::_val = -1] >> num
-        //     | qi::char_('+')[qi::_val = 1] >> num;
-        
-        // num = (qi::uint_ >> '*' >> 'X' >> '^' >> qi::uint_)[phx::bind(&twoArgs, qi::_val * qi::_1, qi::_2)];
-
-        program = +(stmts);
+        equitation = +(stmts) >> qi::char_('=') >> +(stmts);
 
         stmts = (term | constant);
 
-        term = +(
-            sign
-            >> (qi::uint_
-            >> '*'
-            >> 'X'
-            >> '^'
-            >> qi::uint_)[phx::bind(&twoArgs, qi::_1, qi::_2)]
-        );
+        term = (-(qi::char_('+') | qi::char_('-'))
+                >> -qi::uint_
+                >> -qi::char_('*')
+                >> qi::char_('X')
+                >> -qi::char_('^')
+                >> -qi::uint_)[phx::bind(&twoArgs, qi::_1, qi::_2, qi::_6)];
 
-        constant = (sign) >> +(qi::uint_);
-
-        sign = qi::char_('+') | qi::char_('-');
+        constant = (-(qi::char_('+') | qi::char_('-')) >> qi::uint_)[phx::bind(&constantFunc, qi::_1, qi::_2)];
     }
 };
 
