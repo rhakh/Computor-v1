@@ -18,12 +18,16 @@ namespace qi     = boost::spirit::qi;
 namespace spirit = boost::spirit;
 namespace phx    = boost::phoenix;
 
+// OK tests
 // "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
 // "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0"
 // "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 * X^0 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 - 6 * X + X^2 - 5.6 * X^2 = 3 "
+
+// FAIL tests
+// "5 * X^0 + 4 * X^1 + X^2 = 4X2"
 
 void twoArgs(const int &equal, const boost::optional<char> &sign, const boost::optional<double> &coef, const boost::optional<unsigned int> &power)
 {
@@ -61,14 +65,18 @@ struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::sp
 {
     qi::rule<std::string::iterator, spirit::locals<int>, qi::space_type>    equitation;
     qi::rule<std::string::iterator, int(int), qi::space_type>    stmts, term, constant;
+    qi::rule<std::string::iterator, boost::optional<char>(), qi::space_type>    sign;
 
     D2parser() : D2parser::base_type(equitation)
     {
-        equitation = qi::eps[qi::_a = 0] >> +(stmts(qi::_a)) >> qi::char_('=')[qi::_a = 1] >> +(stmts(qi::_a));
+        equitation = qi::eps[qi::_a = 0]
+                    >> +(stmts(qi::_a))
+                    >> qi::char_('=')[qi::_a = 1]
+                    >> +(stmts(qi::_a));
 
         stmts = (term(qi::_r1) | constant(qi::_r1));
 
-        term = (-(qi::char_('+') | qi::char_('-'))
+        term = (sign
                 >> -qi::double_
                 >> -qi::char_('*')
                 >> qi::char_('X')
@@ -76,8 +84,10 @@ struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::sp
                 >> -qi::uint_)
         [qi::_pass = !(qi::_6 > 2U), phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_6)];
 
-        constant = (-(qi::char_('+') | qi::char_('-')) >> qi::double_)
+        constant = (sign >> qi::double_)
                     [phx::bind(&constantFunc, qi::_r1, qi::_1, qi::_2)];
+
+        sign = -(qi::char_('+') | qi::char_('-'));
     }
 };
 
