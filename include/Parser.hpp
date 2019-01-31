@@ -20,34 +20,55 @@ namespace phx    = boost::phoenix;
 
 // OK tests
 // "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
-// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0"
+// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 * X^0"
 // "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 * X^0 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 - 6 * X + X^2 - 5.6 * X^2 = 3 "
 
 // FAIL tests
-// "5 * X^0 + 4 * X^1 + X^2 = 4X2"
+// "5 * X^0 + 4 * X^1 + X^2 = 4 X 2" 
+// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0"
 
-void twoArgs(const int &equal, const boost::optional<char> &sign, const boost::optional<double> &coef, const boost::optional<unsigned int> &power)
+// true on success, and false on fail
+bool twoArgs(const int &equal,
+            const boost::optional<char> &sign,
+            const boost::optional<double> &coef,
+            const boost::optional<char> &power_sign,
+            const boost::optional<unsigned int> &power)
 {
-    std::cout << "TERM: ";
-    if (sign == boost::none)
-        std::cout << "sign NONE";
-    else
-        std::cout << "sign " << sign;
-    
-    if (coef == boost::none)
-        std::cout << ", coef = NONE";
-    else
-        std::cout << ", coef = " << coef;
+    unsigned int local_power = 0;
+    double local_coef = 1.0;
+    int local_sign = 1;
 
-    if (power == boost::none)
-        std::cout << ", power = NONE";
-    else
-        std::cout << ", power = " << power;
-    std::cout << ", Equal = " << equal;
-    std::cout << std::endl;
+    if (sign != boost::none)
+        local_sign = (sign == '+') ? 1 : -1;
+    
+    if (coef != boost::none)
+        local_coef = coef.get();
+
+    if (power != boost::none)
+        local_power = power.get();
+
+    // Check power
+    if (local_power > 2) {
+        // TODO output
+        return (false);
+    }
+
+    // Check if '^' exist, but power not. And wise versa.
+    if ((power_sign != boost::none && power == boost::none) ||
+        (power_sign == boost::none && power != boost::none)) {
+        // TODO output
+        return (false);
+    }
+
+    // TODO Add to sceleton class
+    // sceleton_add(equal * sign * coef, power);
+    std::cout << "TERM: COEF = " << equal * local_sign * local_coef
+                << ", POWER = " << local_power << std::endl;
+
+    return (true);
 }
 
 void constantFunc(const int &equal, const boost::optional<char> &sign, const double &val)
@@ -69,9 +90,9 @@ struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::sp
 
     D2parser() : D2parser::base_type(equitation)
     {
-        equitation = qi::eps[qi::_a = 0]
+        equitation = qi::eps[qi::_a = 1]
                     >> +(stmts(qi::_a))
-                    >> qi::char_('=')[qi::_a = 1]
+                    >> qi::char_('=')[qi::_a = -1]
                     >> +(stmts(qi::_a));
 
         stmts = (term(qi::_r1) | constant(qi::_r1));
@@ -82,7 +103,7 @@ struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::sp
                 >> qi::char_('X')
                 >> -qi::char_('^')
                 >> -qi::uint_)
-        [qi::_pass = !(qi::_6 > 2U), phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_6)];
+        [qi::_pass = (phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_5, qi::_6))];
 
         constant = (sign >> qi::double_)
                     [phx::bind(&constantFunc, qi::_r1, qi::_1, qi::_2)];
