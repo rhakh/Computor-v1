@@ -1,9 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <boost/lexical_cast.hpp>
 
 #include "CLI.hpp"
-#include "Parser.hpp"
+#include "EquitationParser.hpp"
 
 bool	CLI::isFlagSet(const std::string &flag) const {
 	if (this->vm.count(flag))
@@ -81,13 +82,34 @@ void	CLI::startLogic() const {
 	bool success;
 	std::string expression(this->argv[1]);
 	std::string::iterator begin = expression.begin(), end = expression.end();
-	D2parser p;
+	EquitationParser 	parser;
+	EquitationSolution	solution;
 
-	success = qi::phrase_parse(begin, end, p, qi::space);
+	(void)(this->argc);
+	
+	success = qi::phrase_parse(begin, end, parser, qi::space);
+	
 	if(success && begin == end)
 		std::cout << "Parsing succeeded\n";
 	else
 		std::cout << "Parsing failed\nstopped at: \""
 					<< std::string(begin,end) << "\"\n";
-	std::cout << "argc = " << this->argc << std::endl;
+	
+	solution = Equitation::solve();
+	std::cout << std::fixed << std::setprecision(3);
+	std::cout << "a = " << solution.a
+				<< ", b = " << solution.b
+				<< ", c = " << solution.c
+				<< ", D = " << solution.D
+				<< std::endl;
+	if (solution.x1 == boost::none) {
+		std::cout << "Equitation hasn't solution." << std::endl;
+	}
+	else {
+		std::cout << "Equitation has solution: " << std::endl
+					<< "X1 = " << solution.x1;
+		if (solution.x2 != boost::none)
+			std::cout << " and X2 = " << solution.x2;
+		std::cout << std::endl;
+	}
 }

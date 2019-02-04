@@ -25,6 +25,7 @@ SRCDIR = src/
 
 _SRC =	main.cpp \
 		CLI.cpp \
+		Equitation.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 

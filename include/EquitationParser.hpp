@@ -1,5 +1,5 @@
-#ifndef PARSER_HPP
-#define PARSER_HPP
+#ifndef EQUITATION_PARSER_HPP
+#define EQUITATION_PARSER_HPP
 
 #include <string>
 #include <iostream>
@@ -13,6 +13,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/optional/optional_io.hpp>
 
+#include "Equitation.hpp"
 
 namespace qi     = boost::spirit::qi;
 namespace spirit = boost::spirit;
@@ -33,83 +34,83 @@ namespace phx    = boost::phoenix;
 // true on success, and false on fail
 bool twoArgs(const int &equal,
             const boost::optional<char> &sign,
-            const boost::optional<double> &coef,
+            const boost::optional<double> &mult,
             const boost::optional<char> &power_sign,
             const boost::optional<unsigned int> &power)
 {
     unsigned int local_power = 0;
-    double local_coef = 1.0;
+    double local_mult = 1.0;
     int local_sign = 1;
 
     if (sign != boost::none)
         local_sign = (sign == '+') ? 1 : -1;
     
-    if (coef != boost::none)
-        local_coef = coef.get();
+    if (mult != boost::none)
+        local_mult = mult.get();
 
     if (power != boost::none)
         local_power = power.get();
 
     // Check power
-    if (local_power > 2) {
+    if (local_power > 2)
+    {
         // TODO output
         return (false);
     }
 
     // Check if '^' exist, but power not. And wise versa.
     if ((power_sign != boost::none && power == boost::none) ||
-        (power_sign == boost::none && power != boost::none)) {
+        (power_sign == boost::none && power != boost::none))
+    {
         // TODO output
         return (false);
     }
 
-    // TODO Add to sceleton class
-    // sceleton_add(equal * sign * coef, power);
-    std::cout << "TERM: COEF = " << equal * local_sign * local_coef
-                << ", POWER = " << local_power << std::endl;
+    Equitation::addTerm(equal * local_sign * local_mult, local_power);
 
     return (true);
 }
 
 void constantFunc(const int &equal, const boost::optional<char> &sign, const double &val)
 {
-    std::cout << "CONSTANT: ";
-    if (sign == boost::none)
-        std::cout << "sign NONE";
-    else
-        std::cout << "sign " << sign;
-    std::cout << ", val = " << val;
-    std::cout << ", Equal = " << equal << std::endl;
+    int local_sign = 1;
+
+    if (sign != boost::none)
+        local_sign = (sign == '+') ? 1 : -1;
+
+    Equitation::addTerm(equal * local_sign * val, 0);
 }
 
-struct D2parser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::space_type>
+struct EquitationParser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::space_type>
 {
     qi::rule<std::string::iterator, spirit::locals<int>, qi::space_type>    equitation;
     qi::rule<std::string::iterator, int(int), qi::space_type>    stmts, term, constant;
     qi::rule<std::string::iterator, boost::optional<char>(), qi::space_type>    sign;
 
-    D2parser() : D2parser::base_type(equitation)
+    EquitationParser() : EquitationParser::base_type(equitation)
     {
-        equitation = qi::eps[qi::_a = 1]
-                    >> +(stmts(qi::_a))
-                    >> qi::char_('=')[qi::_a = -1]
-                    >> +(stmts(qi::_a));
+        using namespace boost::spirit::qi;
 
-        stmts = (term(qi::_r1) | constant(qi::_r1));
+        equitation = eps[_a = 1]
+                    >> +(stmts(_a))
+                    >> char_('=')[_a = -1]
+                    >> +(stmts(_a));
+
+        stmts = (term(_r1) | constant(_r1));
 
         term = (sign
-                >> -qi::double_
-                >> -qi::char_('*')
-                >> qi::char_('X')
-                >> -qi::char_('^')
-                >> -qi::uint_)
-        [qi::_pass = (phx::bind(&twoArgs, qi::_r1, qi::_1, qi::_2, qi::_5, qi::_6))];
+                >> -double_
+                >> -char_('*')
+                >> char_('X')
+                >> -char_('^')
+                >> -uint_)
+        [_pass = (phx::bind(&twoArgs, _r1, _1, _2, _5, _6))];
 
-        constant = (sign >> qi::double_)
-                    [phx::bind(&constantFunc, qi::_r1, qi::_1, qi::_2)];
+        constant = (sign >> double_)
+                    [phx::bind(&constantFunc, _r1, _1, _2)];
 
-        sign = -(qi::char_('+') | qi::char_('-'));
+        sign = -(char_('+') | char_('-'));
     }
 };
 
-#endif // PARSER_HPP
+#endif // EQUITATION_PARSER_HPP
