@@ -26,6 +26,8 @@ namespace phx    = boost::phoenix;
 // "8 * X^0 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
 // "8 - 6 * X + X^2 - 5.6 * X^2 = 3 "
+// "X^2 + 3X - 4 = 0"
+// "X^2 + 3X - 4 =  X ^ 2 + 3 * X - 4"
 
 // FAIL tests
 // "5 * X^0 + 4 * X^1 + X^2 = 4 X 2" 
@@ -38,7 +40,7 @@ bool twoArgs(const int &equal,
             const boost::optional<char> &power_sign,
             const boost::optional<unsigned int> &power)
 {
-    unsigned int local_power = 0;
+    unsigned int local_power = 1;
     double local_mult = 1.0;
     int local_sign = 1;
 
@@ -65,6 +67,11 @@ bool twoArgs(const int &equal,
         // TODO output
         return (false);
     }
+
+    std::cout << "TERM: equal = " << equal
+                << ", sign = " << local_sign
+                << ", mult = " << local_mult
+                << ", power = " << local_power << std::endl;
 
     Equitation::addTerm(equal * local_sign * local_mult, local_power);
 

@@ -17,6 +17,8 @@ class Equitation
 public:
     static double a, b, c;
     static void addTerm(double mult, int power);
+    static void printReduced(EquitationSolution &sol);
+    static void printSolution(EquitationSolution &sol);
     static EquitationSolution solve(void);
 };
 

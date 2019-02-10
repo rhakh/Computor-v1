@@ -87,6 +87,8 @@ void	CLI::startLogic() const {
 
 	(void)(this->argc);
 	
+	// TODO
+	// pass here equitation variable, and in semantic actions add coef-s to it
 	success = qi::phrase_parse(begin, end, parser, qi::space);
 	
 	if(success && begin == end)
@@ -96,20 +98,17 @@ void	CLI::startLogic() const {
 					<< std::string(begin,end) << "\"\n";
 	
 	solution = Equitation::solve();
-	std::cout << std::fixed << std::setprecision(3);
+
+	// delete
 	std::cout << "a = " << solution.a
 				<< ", b = " << solution.b
 				<< ", c = " << solution.c
 				<< ", D = " << solution.D
 				<< std::endl;
-	if (solution.x1 == boost::none) {
-		std::cout << "Equitation hasn't solution." << std::endl;
-	}
-	else {
-		std::cout << "Equitation has solution: " << std::endl
-					<< "X1 = " << solution.x1;
-		if (solution.x2 != boost::none)
-			std::cout << " and X2 = " << solution.x2;
-		std::cout << std::endl;
-	}
+	//
+
+	Equitation::printReduced(solution);
+	// TODO print detailed solution
+
+	Equitation::printSolution(solution);
 }
