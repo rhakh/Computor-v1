@@ -47,24 +47,26 @@ EquitationSolution Equitation::solve(void) {
 }
 
 void Equitation::printReduced(EquitationSolution &sol) {
+    std::ios_base::fmtflags f(std::cout.flags());
     double integ;
 
-    std::cout << "Reduced form: ";
+    std::cout << "Reduced form: a × X² + b × X + c = 0" << std::endl << "\t\t";
     if (sol.a != 0)
         std::cout << ((std::modf(sol.a, &integ) == 0.0) ? (int)sol.a : sol.a)
-                << " X^2 ";
+                << " × X² ";
     if (sol.b != 0)
         std::cout << std::showpos
                 << ((std::modf(sol.b, &integ) == 0.0) ? (int)sol.b : sol.b)
-                << " X ";
+                << " × X ";
     if (sol.c != 0)
         std::cout << std::showpos
                 << ((std::modf(sol.c, &integ) == 0.0) ? (int)sol.c : sol.c)
                 << " = 0" << std::endl;
-    // TODO clear std::cout preferences after each output
+    std::cout.flags(f);
 }
 
 void Equitation::printSolution(EquitationSolution &sol) {
+    std::ios_base::fmtflags f(std::cout.flags());
     double integ, x1, x2;
 
     if (sol.x1 == boost::none) {
@@ -73,14 +75,45 @@ void Equitation::printSolution(EquitationSolution &sol) {
 	else {
         x1 = sol.x1.get();
 		std::cout << "Equitation has solution: " << std::endl
-                    << "X1 = "
+                    << "X₁ = "
                     << ((std::modf(x1, &integ) == 0.0) ? (int)x1 : x1);
 		if (sol.x2 != boost::none) {
             x2 = sol.x2.get();
-			std::cout << " and X2 = "
+			std::cout << " and X₂ = "
                     << ((std::modf(x2, &integ) == 0.0) ? (int)x2 : x2);
         }
 		std::cout << std::endl;
 	}
-    // TODO clear std::cout preferences after each output
+    std::cout.flags(f);
+}
+
+void Equitation::printDetailedSolution(EquitationSolution &sol) {
+    std::cout << "a = " << sol.a
+                << ", b = " << sol.b
+                << ", c = " << sol.c << std::endl
+                << "Discriminant = (b)² - (4 × a × c) =" << std::endl
+                << "\t\t = (" << sol.b << ")² - (4 × "
+                    << sol.a << " × " << sol.c << ") =" << std::endl
+                << "\t\t = (" << sol.b * sol.b << ") - ("
+                    << 4 * sol.a * sol.c << ") = " << std::endl
+                << "\t\t = " << sol.D << std::endl;
+
+    if (sol.D >= 0.0) {
+        std::cout << "\t-b ± √D" << std::endl
+                    << "X₁,X₂ = ⎯⎯⎯⎯⎯⎯⎯ =" << std::endl
+                    << "\t2 × a" << std::endl << std::endl;
+
+        std::cout << "\t" <<sol.b << " ± √" << sol.D << std::endl
+                        << "X₁,X₂ = ⎯⎯⎯⎯⎯⎯⎯⎯⎯ =" << std::endl
+                        << "\t2 × " << sol.a << std::endl << std::endl;
+
+        std::cout << "\t" << sol.b << " ± " << std::sqrt(sol.D) << std::endl
+                    << "X₁,X₂ = ⎯⎯⎯⎯⎯⎯⎯⎯⎯" << std::endl
+                    << "\t" << 2 * sol.a << std::endl << std::endl;
+    }
+    else {
+        std::cout << "\t-b ± √D" << std::endl
+                    << "X₁, X₂ = ⎯⎯⎯⎯⎯⎯⎯⎯⎯" << std::endl
+                    << "\t2 × a" << std::endl;
+    }
 }

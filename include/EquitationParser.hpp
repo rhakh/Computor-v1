@@ -68,11 +68,6 @@ bool twoArgs(const int &equal,
         return (false);
     }
 
-    std::cout << "TERM: equal = " << equal
-                << ", sign = " << local_sign
-                << ", mult = " << local_mult
-                << ", power = " << local_power << std::endl;
-
     Equitation::addTerm(equal * local_sign * local_mult, local_power);
 
     return (true);

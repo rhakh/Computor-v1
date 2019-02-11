@@ -19,6 +19,7 @@ public:
     static void addTerm(double mult, int power);
     static void printReduced(EquitationSolution &sol);
     static void printSolution(EquitationSolution &sol);
+    static void printDetailedSolution(EquitationSolution &sol);
     static EquitationSolution solve(void);
 };
 
