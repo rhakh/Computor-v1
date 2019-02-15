@@ -5,6 +5,7 @@
 
 #include "CLI.hpp"
 #include "EquitationParser.hpp"
+#include "main.hpp"
 
 bool	CLI::isFlagSet(const std::string &flag) const {
 	if (this->vm.count(flag))
@@ -49,6 +50,10 @@ bool	CLI::processArguments(int argc, const char **argv) {
 		if (this->vm.count("help")) {
 			std::cout << desc << std::endl;
 		}
+
+		if (this->vm.count("verbose")) {
+			verboseLevel = 1;
+		}
 	}
 	catch (po::error &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
@@ -70,7 +75,8 @@ desc("Options"), argc(_argc), argv(_argv)
 							std::string(" '5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0'\n");
 
 	this->desc.add_options()
-			("help,h", helpStr.c_str());
+			("help,h", helpStr.c_str())
+			("verbose,v", "Enable detailed output\n");
 
 	if (!processArguments(_argc, _argv))
 		throw CLI_invalidArguments();
@@ -104,7 +110,7 @@ void	CLI::startLogic() const {
 	solution = Equitation::solve();
 
 	Equitation::printReduced(solution);
-	// TODO use flag
-	Equitation::printDetailedSolution(solution);
+	if (verboseLevel)
+		Equitation::printDetailedSolution(solution);
 	Equitation::printSolution(solution);
 }

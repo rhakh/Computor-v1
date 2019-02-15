@@ -8,6 +8,8 @@
 
 #include "CLI.hpp"
 
+int verboseLevel = 0;
+
 void sigFaultHandler(int sig) {
 	void *array[10];
 	size_t size;
