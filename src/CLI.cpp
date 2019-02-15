@@ -88,14 +88,15 @@ void	CLI::startLogic() const {
 	bool success;
 	std::string expression(this->argv[1]);
 	std::string::iterator begin = expression.begin(), end = expression.end();
-	EquitationParser 	parser;
-	EquitationSolution	solution;
+	EquitationParser	parser;
+	Equitation			solution;
 
 	(void)(this->argc);
 	
 	// TODO
 	// pass here equitation variable, and in semantic actions add coef-s to it
-	success = qi::phrase_parse(begin, end, parser, qi::space);
+	// success = qi::phrase_parse(begin, end, parser, qi::space);
+	success = qi::phrase_parse(begin, end, parser, qi::space, solution);
 	
 	// delete
 	if(success && begin == end)
@@ -107,10 +108,10 @@ void	CLI::startLogic() const {
 	}
 	//
 	
-	solution = Equitation::solve();
+	solution.solve();
 
-	Equitation::printReduced(solution);
+	solution.printReduced();
 	if (verboseLevel)
-		Equitation::printDetailedSolution(solution);
-	Equitation::printSolution(solution);
+		solution.printDetailedSolution();
+	solution.printSolution();
 }

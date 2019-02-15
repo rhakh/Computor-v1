@@ -3,24 +3,28 @@
 
 #include <boost/optional/optional_io.hpp>
 #include <utility>
-
-// TODO use move semantics
-struct EquitationSolution
-{
-    boost::optional<double> x1, x2;
-    double a, b, c, D;
-};
-
+#include <iostream>
 
 class Equitation
 {
+    double a;
+    double b;
+    double c;
+    double D;
+    boost::optional<double> x1;
+    boost::optional<double> x2;
 public:
-    static double a, b, c;
-    static void addTerm(double mult, int power);
-    static void printReduced(EquitationSolution &sol);
-    static void printSolution(EquitationSolution &sol);
-    static void printDetailedSolution(EquitationSolution &sol);
-    static EquitationSolution solve(void);
+    Equitation() :
+                a(0.0), b(0.0), c(0.0), D(0.0), x1(boost::none), x2(boost::none) { std::cout << "H" << std::endl; };
+    Equitation(double _a, double _b, double _c) :
+                a(_a), b(_b), c(_c), D(0.0), x1(boost::none), x2(boost::none) {};
+    ~Equitation() {};
+
+    void addTerm(double mult, int power);
+    void printReduced(void);
+    void printSolution(void);
+    void printDetailedSolution(void);
+    void solve(void);
 };
 
 #endif // EQUITATION_HPP

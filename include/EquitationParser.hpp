@@ -38,7 +38,8 @@ bool twoArgs(const int &equal,
             const boost::optional<char> &sign,
             const boost::optional<double> &mult,
             const boost::optional<char> &power_sign,
-            const boost::optional<unsigned int> &power)
+            const boost::optional<unsigned int> &power,
+            Equitation &equ)
 {
     unsigned int local_power = 1;
     double local_mult = 1.0;
@@ -56,7 +57,7 @@ bool twoArgs(const int &equal,
     // Check power
     if (local_power > 2)
     {
-        // TODO output
+        std::cout << "Error: power bigger than 2" << std::endl;
         return (false);
     }
 
@@ -64,29 +65,29 @@ bool twoArgs(const int &equal,
     if ((power_sign != boost::none && power == boost::none) ||
         (power_sign == boost::none && power != boost::none))
     {
-        // TODO output
+        std::cout << "Error: expected '^' or power" << std::endl;
         return (false);
     }
 
-    Equitation::addTerm(equal * local_sign * local_mult, local_power);
+    equ.addTerm(equal * local_sign * local_mult, local_power);
 
     return (true);
 }
 
-void constantFunc(const int &equal, const boost::optional<char> &sign, const double &val)
+void constantFunc(const int &equal, const boost::optional<char> &sign, const double &val, Equitation &equ)
 {
     int local_sign = 1;
 
     if (sign != boost::none)
         local_sign = (sign == '+') ? 1 : -1;
 
-    Equitation::addTerm(equal * local_sign * val, 0);
+    equ.addTerm(equal * local_sign * val, 0);
 }
 
-struct EquitationParser : qi::grammar<std::string::iterator, spirit::locals<int>, qi::space_type>
+struct EquitationParser : qi::grammar<std::string::iterator, Equitation(), spirit::locals<int>, qi::space_type>
 {
-    qi::rule<std::string::iterator, spirit::locals<int>, qi::space_type>    equitation;
-    qi::rule<std::string::iterator, int(int), qi::space_type>    stmts, term, constant;
+    qi::rule<std::string::iterator, Equitation(), spirit::locals<int>, qi::space_type>    equitation;
+    qi::rule<std::string::iterator, Equitation(int), qi::space_type>    stmts, term, constant;
     qi::rule<std::string::iterator, boost::optional<char>(), qi::space_type>    sign;
 
     EquitationParser() : EquitationParser::base_type(equitation)
@@ -106,10 +107,10 @@ struct EquitationParser : qi::grammar<std::string::iterator, spirit::locals<int>
                 >> char_('X')
                 >> -char_('^')
                 >> -uint_)
-        [_pass = (phx::bind(&twoArgs, _r1, _1, _2, _5, _6))];
+        [_pass = (phx::bind(&twoArgs, _r1, _1, _2, _5, _6, _val))];
 
         constant = (sign >> double_)
-                    [phx::bind(&constantFunc, _r1, _1, _2)];
+                    [phx::bind(&constantFunc, _r1, _1, _2, _val)];
 
         sign = -(char_('+') | char_('-'));
     }
