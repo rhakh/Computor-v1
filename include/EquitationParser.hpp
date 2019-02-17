@@ -34,7 +34,7 @@ namespace phx    = boost::phoenix;
 // "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0"
 
 // true on success, and false on fail
-bool twoArgs(const int &equal,
+bool termFunc(const int &equal,
             const boost::optional<char> &sign,
             const boost::optional<double> &mult,
             const boost::optional<char> &power_sign,
@@ -107,13 +107,16 @@ struct EquitationParser : qi::grammar<std::string::iterator, Equitation(), spiri
                 >> char_('X')
                 >> -char_('^')
                 >> -uint_)
-        [_pass = (phx::bind(&twoArgs, _r1, _1, _2, _5, _6, _val))];
+        [_pass = (phx::bind(&termFunc, _r1, _1, _2, _5, _6, _val))];
 
         constant = (sign >> double_)
                     [phx::bind(&constantFunc, _r1, _1, _2, _val)];
 
         sign = -(char_('+') | char_('-'));
     }
+
+    // TODO
+    // add error handler
 };
 
 #endif // EQUITATION_PARSER_HPP
