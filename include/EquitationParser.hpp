@@ -13,11 +13,24 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/optional/optional_io.hpp>
 
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
+
 #include "Equitation.hpp"
 
 namespace qi     = boost::spirit::qi;
 namespace spirit = boost::spirit;
 namespace phx    = boost::phoenix;
+
+struct Container {
+    Equitation  equ;
+};
+
+BOOST_FUSION_ADAPT_STRUCT(
+    struct Container,
+    (Equitation, equ)
+)
 
 // OK tests
 // "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
