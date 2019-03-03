@@ -4,7 +4,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-// #include <boost/spirit.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/phoenix.hpp>
@@ -19,7 +18,7 @@ namespace qi     = boost::spirit::qi;
 namespace spirit = boost::spirit;
 namespace phx    = boost::phoenix;
 
-// true on success, and false on fail
+// Return true on success, and false on fail
 bool termFunc(const int &equal,
             const boost::optional<char> &sign,
             const boost::optional<double> &mult,
@@ -40,18 +39,18 @@ bool termFunc(const int &equal,
     if (power != boost::none)
         local_power = power.get();
 
-    // Check power
-    if (local_power > 2)
-    {
-        std::cout << "Error: power bigger than 2" << std::endl;
-        return (false);
-    }
-
     // Check if '^' exist, but power not. And wise versa.
     if ((power_sign != boost::none && power == boost::none) ||
         (power_sign == boost::none && power != boost::none))
     {
         std::cout << "Error: expected '^' or power" << std::endl;
+        return (false);
+    }
+
+    // Check power
+    if (local_power > 2)
+    {
+        std::cout << "Error: power bigger than 2" << std::endl;
         return (false);
     }
 
