@@ -1,7 +1,6 @@
 #ifndef EQUITATION_PARSER_HPP
 #define EQUITATION_PARSER_HPP
 
-
 #include <string>
 #include <iostream>
 #include <vector>
@@ -20,22 +19,8 @@ namespace qi     = boost::spirit::qi;
 namespace spirit = boost::spirit;
 namespace phx    = boost::phoenix;
 
-// OK tests
-// "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
-// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 * X^0"
-// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 "
-// "8 * X^0 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
-// "8 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
-// "8 - 6 * X + X^2 - 5.6 * X^2 = 3 "
-// "X^2 + 3X - 4 = 0"
-// "X^2 + 3X - 4 =  X ^ 2 + 3 * X - 4"
-
-// FAIL tests
-// "5 * X^0 + 4 * X^1 + X^2 = 4 X 2" 
-// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0"
-
 // true on success, and false on fail
-bool twoArgs(const int &equal,
+bool termFunc(const int &equal,
             const boost::optional<char> &sign,
             const boost::optional<double> &mult,
             const boost::optional<char> &power_sign,
@@ -108,7 +93,7 @@ struct EquitationParser : qi::grammar<std::string::iterator, void(Equitation &),
                 >> char_('X')
                 >> -char_('^')
                 >> -uint_)
-        [_pass = (phx::bind(&twoArgs, _r1, _1, _2, _5, _6, _r2))];
+        [_pass = (phx::bind(&termFunc, _r1, _1, _2, _5, _6, _r2))];
 
         constant = (sign >> double_)
                     [phx::bind(&constantFunc, _r1, _1, _2, _r2)];

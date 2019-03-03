@@ -8,6 +8,20 @@
 
 #include "CLI.hpp"
 
+// OK tests
+// "5 * X^0 + 4 * X^1 + X^2 = 4 * X^0"
+// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 * X^0"
+// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^2 = 3 "
+// "8 * X^0 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
+// "8 - 6 * X + 0 * X^2 - 5.6 * X^2 = 3 "
+// "8 - 6 * X + X^2 - 5.6 * X^2 = 3 "
+// "X^2 + 3X - 4 = 0"
+// "X^2 + 3X - 4 =  X ^ 2 + 3 * X - 4"
+
+// FAIL tests
+// "5 * X^0 + 4 * X^1 + X^2 = 4 X 2" 
+// "8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0"
+
 int verboseLevel = 0;
 
 void sigFaultHandler(int sig) {
@@ -40,8 +54,3 @@ int		main(int argc, const char **argv) {
 	}
 	return (0);
 }
-
-
-
-// Пример того как выызвать конструктор в парсере
-// http://boost-spirit.com/home/2011/02/26/using-_val-in-top-level-semantic-actions/

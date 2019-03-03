@@ -1,6 +1,6 @@
 #include "Equitation.hpp"
 #include "iostream" //delete
-#include "math.h"
+#include <cmath>
 
 void Equitation::addTerm(double mult, int power) {
 
