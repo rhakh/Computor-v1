@@ -72,7 +72,7 @@ desc("Options"), argc(_argc), argv(_argv)
 							"\twith degree equal or less than 2\n"
 							"\tExample of usage:\n") +
 							std::string("\t") + std::string(_argv[0]) +
-							std::string(" '5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0'\n");
+							std::string(" '5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0' [-v]\n");
 
 	this->desc.add_options()
 			("help,h", helpStr.c_str())
@@ -88,29 +88,24 @@ void	CLI::startLogic() const {
 	bool success;
 	std::string expression(this->argv[1]);
 	std::string::iterator begin = expression.begin(), end = expression.end();
-	EquitationParser 	parser;
-	EquitationSolution	solution;
+	EquitationParser	parser;
+	Equitation			solution;
 
 	(void)(this->argc);
 	
-	// TODO
-	// pass here equitation variable, and in semantic actions add coef-s to it
-	success = qi::phrase_parse(begin, end, parser, qi::space);
+	success = qi::phrase_parse(begin, end, parser(phx::ref(solution)), qi::space);
 	
-	// delete
-	if(success && begin == end)
-		std::cout << "Parsing succeeded\n";
-	else {
+	if(!success || begin != end)
+	{
 		std::cout << "Parsing failed\nstopped at: \""
 					<< std::string(begin,end) << "\"\n";
 		return ;
 	}
-	//
 	
-	solution = Equitation::solve();
+	solution.solve();
 
-	Equitation::printReduced(solution);
+	solution.printReduced();
 	if (verboseLevel)
-		Equitation::printDetailedSolution(solution);
-	Equitation::printSolution(solution);
+		solution.printDetailedSolution();
+	solution.printSolution();
 }
