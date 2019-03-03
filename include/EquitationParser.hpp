@@ -1,6 +1,7 @@
 #ifndef EQUITATION_PARSER_HPP
 #define EQUITATION_PARSER_HPP
 
+
 #include <string>
 #include <iostream>
 #include <vector>
@@ -84,10 +85,10 @@ void constantFunc(const int &equal, const boost::optional<char> &sign, const dou
     equ.addTerm(equal * local_sign * val, 0);
 }
 
-struct EquitationParser : qi::grammar<std::string::iterator, Equitation(), spirit::locals<int>, qi::space_type>
+struct EquitationParser : qi::grammar<std::string::iterator, void(Equitation &), spirit::locals<int>, qi::space_type>
 {
-    qi::rule<std::string::iterator, Equitation(), spirit::locals<int>, qi::space_type>    equitation;
-    qi::rule<std::string::iterator, Equitation(int), qi::space_type>    stmts, term, constant;
+    qi::rule<std::string::iterator, void(Equitation &), spirit::locals<int>, qi::space_type>    equitation;
+    qi::rule<std::string::iterator, void(int, Equitation &), qi::space_type>    stmts, term, constant;
     qi::rule<std::string::iterator, boost::optional<char>(), qi::space_type>    sign;
 
     EquitationParser() : EquitationParser::base_type(equitation)
@@ -95,11 +96,11 @@ struct EquitationParser : qi::grammar<std::string::iterator, Equitation(), spiri
         using namespace boost::spirit::qi;
 
         equitation = eps[_a = 1]
-                    >> +(stmts(_a))
+                    >> +(stmts(_a, _r1))
                     >> char_('=')[_a = -1]
-                    >> +(stmts(_a));
+                    >> +(stmts(_a, _r1));
 
-        stmts = (term(_r1) | constant(_r1));
+        stmts = (term(_r1, _r2) | constant(_r1, _r2));
 
         term = (sign
                 >> -double_
@@ -107,10 +108,10 @@ struct EquitationParser : qi::grammar<std::string::iterator, Equitation(), spiri
                 >> char_('X')
                 >> -char_('^')
                 >> -uint_)
-        [_pass = (phx::bind(&twoArgs, _r1, _1, _2, _5, _6, _val))];
+        [_pass = (phx::bind(&twoArgs, _r1, _1, _2, _5, _6, _r2))];
 
         constant = (sign >> double_)
-                    [phx::bind(&constantFunc, _r1, _1, _2, _val)];
+                    [phx::bind(&constantFunc, _r1, _1, _2, _r2)];
 
         sign = -(char_('+') | char_('-'));
     }

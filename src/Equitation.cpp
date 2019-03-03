@@ -17,12 +17,9 @@ void Equitation::addTerm(double mult, int power) {
             c += mult;
             break;
         default:
-            // TODO
-            // assert, impossile situation
+            BOOST_ASSERT_MSG(0, "Impossible action");
             break;
     }
-
-    std::cout << "a = " << a << " b = " << b << " c = " << c << " D = " << D << " p = " << this << std::endl;
 }
 
 void Equitation::solve(void) {
