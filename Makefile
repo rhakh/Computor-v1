@@ -49,6 +49,3 @@ fclean: clean
 	rm -rf $(NAME)
 
 re: fclean all
-
-test:
-	$(CXX) $(INCLUDE_AND_LIBS) $(FLAGS) -o test src/test.cpp
