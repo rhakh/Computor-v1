@@ -12,8 +12,8 @@ ifeq ($(OS),Darwin)
 			-Wno-unused-parameter -O2
 else
   CXX=g++
-  INCLUDE_AND_LIBS = -I include
-  FLAGS = -std=c++11 -Wall -Wextra -Werror \
+  INCLUDE_AND_LIBS = -I /usr/include/boost -L /usr/lib/x86_64-linux-gnu -I include
+  FLAGS = -std=c++14 -Wall -Wextra -Werror \
 			-lboost_filesystem  -lboost_system -lboost_program_options \
 			-pthread -lboost_thread \
 			-Wno-unused-parameter -O2
