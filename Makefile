@@ -40,7 +40,7 @@ $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(INCLUDE_AND_LIBS) $(FLAGS) -o $@ -c $<
 
 $(NAME): $(OBJ) $(SRC)
-	$(CXX) $(INCLUDE_AND_LIBS) $(FLAGS) -o $(NAME) $(OBJ)
+	$(CXX) $(INCLUDE_AND_LIBS) -o $(NAME) $(OBJ) $(FLAGS)
 
 clean:
 	rm -rf $(OBJDIR)
